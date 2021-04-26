@@ -38,7 +38,7 @@ Include in your code and begin using the library:
 
 ```pawn
 // Make sure you move hs.pwn to HeadShotSystem root folder.
-#include <HeadshotSystem>
+#include <hs.pwn>
 ```
 
 ## Usage
