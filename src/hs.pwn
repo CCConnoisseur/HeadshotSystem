@@ -1,3 +1,6 @@
+#if !defined _ASSET_hs_sys_
+	#define _ASSET_hs_sys_
+#endif
 //#define FILTERSCRIPT
 #define __ENABLE__DEBUGGING__
 
