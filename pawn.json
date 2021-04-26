@@ -1,0 +1,10 @@
+{
+	"user": "CCConnoisseur",
+	"repo": "HeadshotSystem",
+	"entry": "src\\hs.pwn",
+	"output": "gamemodes\\hs.amx",
+	"dependencies": [
+		"pawn-lang/YSI-Includes"
+	],
+	"local": true
+}
