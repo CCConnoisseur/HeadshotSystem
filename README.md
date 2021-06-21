@@ -37,8 +37,7 @@ sampctl package install CCConnoisseur/HeadshotSystem
 Include in your code and begin using the library:
 
 ```pawn
-// Make sure you move hs.pwn to HeadShotSystem root folder.
-#include <hs.pwn>
+#include <hs>
 ```
 
 ## Usage
