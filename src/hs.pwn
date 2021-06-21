@@ -16,12 +16,12 @@
 	#endif
 
 	#if defined _INC_y_bit
-		static BitArray:__PlayerBeingHeadshotted<MAX_PLAYERS>,
+		static BitArray:PlayerBeingHeadshotted<MAX_PLAYERS>,
 	#else
-		static bool:__PlayerBeingHeadshotted[MAX_PLAYERS] = {false, ...},
+		static bool:PlayerBeingHeadshotted[MAX_PLAYERS] = {false, ...},
 	#endif
-		__HeadshottingWho[MAX_PLAYERS] = {INVALID_PLAYER_ID, ...},
-		__name[MAX_PLAYERS][MAX_PLAYER_NAME+1];
+		HeadshottingWho[MAX_PLAYERS] = {INVALID_PLAYER_ID, ...},
+		name[MAX_PLAYERS][MAX_PLAYER_NAME+1];
 
 	#if !defined FILTERSCRIPT
 		main()
@@ -37,18 +37,18 @@
 		#endif
 	}
 
-	static __ResetVariables(playerid)
+	static void:ResetVariables(playerid)
 	{
-		__HeadshottingWho[ __HeadshottingWho[playerid] ] = INVALID_PLAYER_ID;
-		__HeadshottingWho[playerid] = INVALID_PLAYER_ID;
+		HeadshottingWho[ HeadshottingWho[playerid] ] = INVALID_PLAYER_ID;
+		HeadshottingWho[playerid] = INVALID_PLAYER_ID;
 		#if defined _INC_y_bit
-			Bit_Vet(__PlayerBeingHeadshotted, playerid);
+			Bit_Vet(PlayerBeingHeadshotted, playerid);
 		#else
-			__PlayerBeingHeadshotted[playerid] = false;
+			PlayerBeingHeadshotted[playerid] = false;
 		#endif
 
 		#if defined __ENABLE__DEBUGGING__
-			printf("[HEADSHOT-LOG] Resetting variables for %s.", __name[playerid]);
+			printf("[HEADSHOT-LOG] Resetting variables for %s.", name[playerid]);
 		#endif
 	}
 	#if defined _INC_y_hooks
@@ -61,25 +61,27 @@
 		{
 			if(bodypart == 9 && weaponid == WEAPON_SNIPER)
 			{
-				__HeadshottingWho[playerid] = damagedid;
-				__HeadshottingWho[damagedid] = playerid;
+				HeadshottingWho[playerid] = damagedid;
+				HeadshottingWho[damagedid] = playerid;
 
 				#if defined _INC_y_bit
-					if(!Bit_Get(__PlayerBeingHeadshotted, playerid)) Bit_Let(__PlayerBeingHeadshotted, damagedid);
+					if(!Bit_Get(PlayerBeingHeadshotted, playerid)) 
+					{
+						Bit_Let(PlayerBeingHeadshotted, damagedid);
+					}
 				#else
-					if(!__PlayerBeingHeadshotted[playerid]) __PlayerBeingHeadshotted[damagedid] = true;
+					if(!PlayerBeingHeadshotted[playerid]) 
+					{
+						PlayerBeingHeadshotted[damagedid] = true;
+					}
 				#endif
 
 				#if defined __ENABLE__DEBUGGING__
-					printf("[HEADSHOT-LOG] %s is giving headshot damage to %s.", __name[playerid], __name[damagedid]);
+					printf("[HEADSHOT-LOG] %s is giving headshot damage to %s.", name[playerid], name[damagedid]);
 				#endif
 			}
 		}
-		#if !defined _INC_y_hooks
-			return 1;
-		#else
-			return Y_HOOKS_CONTINUE_RETURN_1;
-		#endif
+		return 1;
 	}
 	#if !defined _INC_y_hooks
 		#if defined _ALS_OnPlayerGiveDamage
@@ -104,25 +106,21 @@
 			if(bodypart == 9 && weaponid == WEAPON_SNIPER)
 			{
 				#if defined _INC_y_bit
-					if((__HeadshottingWho[playerid] == issuerid && __HeadshottingWho[issuerid] == playerid) && Bit_Get(__PlayerBeingHeadshotted, playerid))
+					if((HeadshottingWho[playerid] == issuerid && HeadshottingWho[issuerid] == playerid) && Bit_Get(PlayerBeingHeadshotted, playerid))
 				#else
-					if((__HeadshottingWho[playerid] == issuerid && __HeadshottingWho[issuerid] == playerid) && __PlayerBeingHeadshotted[playerid]) 
+					if((HeadshottingWho[playerid] == issuerid && HeadshottingWho[issuerid] == playerid) && PlayerBeingHeadshotted[playerid]) 
 				#endif
 				{
 					SetPlayerHealth(playerid, 0.0);
 					GameTextForPlayer(playerid, "~r~You've been headhostted!", 8000, 1);
-					__ResetVariables(playerid);
+					ResetVariables(playerid);
 					#if defined __ENABLE__DEBUGGING__
-						printf("[HEADSHOT-LOG] %s has been headshotted by %s. (NOTE THAT VARIABLE RESET LOG SHOULD BE DISPLAYED FIRST)", __name[playerid], __name[issuerid]);
+						printf("[HEADSHOT-LOG] %s has been headshotted by %s. (NOTE THAT VARIABLE RESET LOG SHOULD BE DISPLAYED FIRST)", name[playerid], name[issuerid]);
 					#endif
 				}	
 			}
 		}
-		#if !defined _INC_y_hooks
-			return 1;
-		#else
-			return Y_HOOKS_CONTINUE_RETURN_1;
-		#endif
+		return 1;
 	}
 	#if !defined _INC_y_hooks
 		#if defined _ALS_OnPlayerTakeDamage
@@ -142,12 +140,8 @@
 		public OnPlayerConnect(playerid)
 	#endif
 	{
-		GetPlayerName(playerid, __name[playerid], MAX_PLAYER_NAME+1);
-		#if !defined _INC_y_hooks
-			return 1;
-		#else
-			return Y_HOOKS_CONTINUE_RETURN_1;
-		#endif
+		GetPlayerName(playerid, name[playerid], MAX_PLAYER_NAME+1);
+		return 1;
 	}
 	#if !defined _INC_y_hooks
 		#if defined _ALS_OnPlayerConnect
@@ -167,13 +161,9 @@
 		public OnPlayerDisconnect(playerid, reason)
 	#endif
 	{
-		__ResetVariables(playerid);
-		__name[playerid][0] = EOS;
-		#if !defined _INC_y_hooks
-			return 1;
-		#else
-			return Y_HOOKS_CONTINUE_RETURN_1;
-		#endif
+		ResetVariables(playerid);
+		name[playerid][0] = EOS;
+		return 1;
 	}
 	#if !defined _INC_y_hooks
 		#if defined _ALS_OnPlayerDisconnect
